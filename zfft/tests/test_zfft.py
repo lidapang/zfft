@@ -1,8 +1,7 @@
-from utils import chirpz, zfft, zfftfreq
+from zfft import chirpz, zfft, zfftfreq
 import numpy as np
 import unittest
 from scipy.fftpack import fft, fftfreq, fftshift
-import matplotlib.pyplot as plt
 
 
 
