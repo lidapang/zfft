@@ -4,7 +4,7 @@ zfft
 zoom FFT in python
 ------------------
 
-Suppose you want to computer the FFT for a subset of frequency values. Use the zfft function to accomplish this task
+Suppose you want to compute the FFT for a subset of frequency values. Use the zfft function to accomplish this task.
 
 
 Installation
