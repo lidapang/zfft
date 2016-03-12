@@ -53,133 +53,115 @@ class TestCode(unittest.TestCase):
 
     def test_zfft(self):
         """Test 1D case."""
-        sig = np.array([0., 0., 0., 1.])
-        M = sig.shape[-1]
-        f0 = 0.
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig)
-        out2 = fft(sig, M)
-        self.assertTrue(np.allclose(out1, out2))
-
-        sig = np.array([0., 0., 0., 1.])
-        M = len(sig)
-        f0 = 0.
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
+        M = 5
+        sig = np.random.randn(M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
         out1 = zfft(sig, f0, f1, fs)
-        out2 = fft(sig, M)
+        out2 = fftshift( fft(sig, M) )
         self.assertTrue(np.allclose(out1, out2))
 
-        sig = np.array([0., 0., 0., 1.])
-        M = len(sig)
-        f0 = 0.
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig, f0, f1, fs, M)
-        out2 = fft(sig, M)
+        M = 6
+        sig = np.random.randn(M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
+        out1 = zfft(sig, f0, f1, fs)
+        out2 = fftshift( fft(sig, M) )
         self.assertTrue(np.allclose(out1, out2))
 
-        sig = np.array([0., 0., 0., 1.])
-        M = len(sig)
-        f0 = 0.
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(zfft(sig, f0, f1, fs, M), f0, f1, fs, M)
-        out2 = fft(fft(sig, M), M)
+
+
+        M = 5
+        sig = np.random.randn(M) + 1j * np.random.randn(M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
+        out1 = zfft(sig, f0, f1, fs)
+        out2 = fftshift( fft(sig, M) )
         self.assertTrue(np.allclose(out1, out2))
 
-        sig = np.array([1j, 0., 0., 1.])
-        M = len(sig)
-        f0 = 0.
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig, f0, f1, fs, M)
-        out2 = fft(sig, M)
+
+
+        M = 6
+        sig = np.random.randn(M) + 1j * np.random.randn(M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
+        out1 = zfft(sig, f0, f1, fs)
+        out2 = fftshift( fft(sig, M) )
         self.assertTrue(np.allclose(out1, out2))
+
+
+
 
         """Test 2D case."""
-        sig = np.array([[0., 0., 1., 0.],[1., 2., 3., 4.]])
-        axis = 0
-        M = sig.shape[axis]
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig, f0, f1, fs, M, axis)
-        out2 = fft(sig, M, axis)
+        M = 5
+        sig = np.random.randn(M, M) + 1j * np.random.randn(M, M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
+        out1 = zfft(sig, f0, f1, fs, axis=0)
+        out2 = fftshift( fft(sig, M, axis=0), axes=0)
         self.assertTrue(np.allclose(out1, out2))
 
-        sig = np.array([[0., 0., 1., 0.],[1., 2., 3., 4.]])
-        axis = 1
-        M = sig.shape[axis]
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig, f0, f1, fs, M, axis)
-        out2 = fft(sig, M, axis)
+        M = 6
+        sig = np.random.randn(M, M) + 1j * np.random.randn(M, M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
+        out1 = zfft(sig, f0, f1, fs, axis=0)
+        out2 = fftshift( fft(sig, M, axis=0), axes=0)
         self.assertTrue(np.allclose(out1, out2))
 
-        sig = np.array([[0., 0., 1., 0.],
-                        [1., 2., 3., 4.],
-                        [4., 3., 2., 1.],
-                        [0., 1., 0., 1.]])
-        axis = 0
-        M = sig.shape[axis]
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1a = zfft(sig, f0, f1, fs, M, axis)
-        out2a = fft(sig, M, axis)
-        axis = 1
-        out1b = zfft(out1a, f0, f1, fs, M, axis)
-        out2b = fft(out2a, M, axis)
-        self.assertTrue(np.allclose(out1b, out2b))
+
 
         """Test 3D case."""
-        sig = np.array([[[0., 0., 1., 0.],[1., 2., 3., 4.]],
-                        [[0., 0., 1., 0.],[1., 2., 3., 4.]]])
-        axis = 0
-        M = sig.shape[axis]
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig, f0, f1, fs, M, axis)
-        out2 = fft(sig, M, axis)
+        M = 5
+        sig = np.random.randn(M, M, M) + 1j * np.random.randn(M, M, M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
+        out1 = zfft(sig, f0, f1, fs, axis=0)
+        out2 = fftshift( fft(sig, M, axis=0), axes=0)
         self.assertTrue(np.allclose(out1, out2))
 
-        sig = np.array([[[0., 0., 1., 0.],[1., 2., 3., 4.]],
-                        [[0., 0., 1., 0.],[1., 2., 3., 4.]]])
-        axis = 1
-        M = sig.shape[axis]
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig, f0, f1, fs, M, axis)
-        out2 = fft(sig, M, axis)
+
+
+        M = 6
+        sig = np.random.randn(M, M) + 1j * np.random.randn(M, M)
+        dt = 0.1
+        fs = 1 / dt
+        freq1 = fftshift( fftfreq(M, dt) )
+        f0 = fftshift( fftfreq(M, dt) )[0]
+        f1 = fftshift( fftfreq(M, dt) )[-1]
+        out1 = zfft(sig, f0, f1, fs, axis=0)
+        out2 = fftshift( fft(sig, M, axis=0), axes=0)
         self.assertTrue(np.allclose(out1, out2))
 
-        sig = np.array([[[0., 0., 1., 0.],[1., 2., 3., 4.]],
-                        [[0., 0., 1., 0.],[1., 2., 3., 4.]]])
-        axis = 2
-        M = sig.shape[axis]
-        f1 = 1.
-        fs = 1.
-        freq = fftfreq(M)
-        out1 = zfft(sig, f0, f1, fs, M, axis)
-        out2 = fft(sig, M, axis)
-        self.assertTrue(np.allclose(out1, out2))
+
+
+
 
     def test_zfftfreq1(self):
-        f0 = -0.5
-        f1 = 0.5
         M = 8
-        freq1 = zfftfreq(f0=f0, f1=f1, M=M)
-        freq2 = fftshift(fftfreq(M))
+        freq1 = fftshift(fftfreq(M, d=1.0))
+        freq2 = zfftfreq(f0=freq1[0], f1=freq1[-1], M=M)
         self.assertTrue(np.allclose(freq1, freq2))
 
 

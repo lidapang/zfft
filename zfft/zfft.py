@@ -155,7 +155,7 @@ def zfft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
 
     # Determine shape of signal
     A = np.exp(1j * np.pi * f0_norm)
-    W = np.exp(-1j * np.pi * (f1_norm - f0_norm) / M)
+    W = np.exp(-1j * np.pi * (f1_norm - f0_norm) / (M - 1))
     y = chirpz(x=x, A=A, W=W, M=M)
     # Return result
     return swapaxes(a=y, axis1=axis, axis2=-1)
@@ -175,7 +175,7 @@ def zfftfreq(f0, f1, M):
 
     """
 
-    df = (f1 - f0) / M
+    df = (f1 - f0) / (M - 1)
     return np.arange(M) * df + f0
 
 
