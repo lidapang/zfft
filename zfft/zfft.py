@@ -2,7 +2,7 @@
 
 import numpy as np
 from time import time
-from scipy.fftpack import fft, ifft
+import scipy.fftpack
 from numpy import swapaxes
 
 def chirpz(x, A=None, W=None, M=None):
@@ -71,15 +71,15 @@ def chirpz(x, A=None, W=None, M=None):
 
         n = np.arange(N, dtype=float)
         y = np.power(A, -n) * np.power(W, n ** 2 / 2.) *  x
-        Y = fft(y, L)
+        Y = scipy.fftpack.fft(y, L)
 
         n = np.arange(L, dtype=float)
         v = np.zeros(L, dtype=np.complex)
         v[:M] = np.power(W, -n[:M] ** 2 / 2.)
         v[L-N+1:] = np.power(W, -(L - n[L-N+1:]) ** 2 / 2.)
-        V = fft(v, L)
+        V = scipy.fftpack.fft(v, L)
 
-        g = ifft(V * Y)[:M]
+        g = scipy.fftpack.ifft(V * Y)[:M]
         k = np.arange(M)
         g = g * np.power(W, k ** 2 / 2.)
 
@@ -90,15 +90,15 @@ def chirpz(x, A=None, W=None, M=None):
         n = np.arange(N, dtype=float)
         y = np.power(A, -n) * np.power(W, n ** 2 / 2.)
         y = np.tile(y, (P[0], 1)) * x
-        Y = fft(y, L)
+        Y = scipy.fftpack.fft(y, L)
 
         n = np.arange(L, dtype=float)
         v = np.zeros(L, dtype=np.complex)
         v[:M] = np.power(W, -n[:M] ** 2 / 2.)
         v[L-N+1:] = np.power(W, -(L - n[L-N+1:]) ** 2 / 2.)
-        V = fft(v)
+        V = scipy.fftpack.fft(v)
 
-        g = ifft(np.tile(V, (P[0], 1)) * Y)[:,:M]
+        g = scipy.fftpack.ifft(np.tile(V, (P[0], 1)) * Y)[:,:M]
         k = np.arange(M)
         g = g * np.tile(np.power(W, k ** 2 / 2.), (P[0],1))
 
@@ -109,22 +109,58 @@ def chirpz(x, A=None, W=None, M=None):
         n = np.arange(N,dtype=float)
         y = np.power(A,-n) * np.power(W,n ** 2 / 2.)
         y = np.tile(y, (P[0],P[1],1)) * x
-        Y = fft(y, L)
+        Y = scipy.fftpack.fft(y, L)
 
         n = np.arange(L, dtype=float)
         v = np.zeros(L, dtype=np.complex)
         v[:M] = np.power(W, -n[:M] ** 2 / 2.)
         v[L-N+1:] = np.power(W, -(L - n[L-N+1:]) ** 2 / 2.)
-        V = fft(v)
+        V = scipy.fftpack.fft(v)
 
-        g = ifft(np.tile(V, (P[0], P[1],1)) * Y)[:,:,:M]
+        g = scipy.fftpack.ifft(np.tile(V, (P[0], P[1],1)) * Y)[:,:,:M]
         k = np.arange(M)
         g = g * np.tile(np.power(W, k ** 2 / 2.), (P[0],P[1],1))
     # Return result
     return g
 
 
-def zfft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
+def fft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
+    """zfft(x, f0, f1, fs, M) - Zoom FFT function to evaluate the 1DFT
+    coefficients for the rows of an array in the frequency range [f0, f1]
+    using N points.
+
+    Keyword arguments:
+    x -- array to evaluate DFT (along last dimension of array)
+    f0 -- lower bound of frequency bandwidth
+    f1 -- upper bound of frequency bandwidth
+    fs -- sampling frequency
+    M -- number of points used when evaluating the 1DFT (N <= signal length)
+    axis -- axis along which the fft's are computed (defaults to last axis)
+
+    Return values:
+    y -- DFT coefficients
+
+    """
+
+    # Handle default arguments
+    if M == None:
+        M = x.shape[-1]
+
+    # Swap axes
+    x = swapaxes(a=x, axis1=axis, axis2=-1)
+
+    # Normalize frequency range
+    f0_norm = f0 / (fs / 2.)
+    f1_norm = f1 / (fs / 2.)
+
+    # Determine shape of signal
+    A = np.exp(1j * np.pi * f0_norm)
+    W = np.exp(-1j * np.pi * (f1_norm - f0_norm) / (M - 1))
+    y = chirpz(x=x, A=A, W=W, M=M)
+    # Return result
+    return swapaxes(a=y, axis1=axis, axis2=-1)
+
+def ifft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
     """zfft(x, f0, f1, fs, M) - Zoom FFT function to evaluate the 1DFT
     coefficients for the rows of an array in the frequency range [f0, f1]
     using N points.
@@ -161,7 +197,7 @@ def zfft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
     return swapaxes(a=y, axis1=axis, axis2=-1)
 
 
-def zfftfreq(f0, f1, M):
+def fftfreq(f0, f1, M):
     """zfftfreq(f0, f1, M) - Return frequency values of the zoom FFT
     coefficients returned by zfft().
 
@@ -213,14 +249,14 @@ def chirpz_original(x,A,W,M):
 
     n = np.arange(N,dtype=float)
     y = np.power(A,-n) * np.power(W,n**2 / 2.) * x 
-    Y = np.fft.fft(y,L)
+    Y = scipy.fftpack.fft(y,L)
 
     v = np.zeros(L,dtype=np.complex)
     v[:M] = np.power(W,-n[:M]**2/2.)
     v[L-N+1:] = np.power(W,-n[N-1:0:-1]**2/2.)
-    V = np.fft.fft(v)
+    V = scipy.fftpack.fft(v)
 
-    g = np.fft.ifft(V*Y)[:M]
+    g = scipy.fftpack.ifft(V*Y)[:M]
     k = np.arange(M)
     g *= np.power(W,k**2 / 2.)
 

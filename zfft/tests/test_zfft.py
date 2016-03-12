@@ -1,4 +1,7 @@
-from zfft import chirpz, zfft, zfftfreq
+from zfft import chirpz
+from zfft import fft as zfft
+from zfft import ifft as zifft
+from zfft import fftfreq as zfftfreq
 import numpy as np
 import unittest
 from scipy.fftpack import fft, fftfreq, fftshift
