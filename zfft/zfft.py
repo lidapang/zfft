@@ -125,7 +125,7 @@ def chirpz(x, A=None, W=None, M=None):
 
 
 def fft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
-    """zfft(x, f0, f1, fs, M) - Zoom FFT function to evaluate the 1DFT
+    """fft(x, f0, f1, fs, M) - Zoom FFT function to evaluate the 1DFT
     coefficients for the rows of an array in the frequency range [f0, f1]
     using N points.
 
@@ -138,7 +138,7 @@ def fft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
     axis -- axis along which the fft's are computed (defaults to last axis)
 
     Return values:
-    y -- DFT coefficients
+    X -- DFT coefficients
 
     """
 
@@ -150,51 +150,63 @@ def fft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
     x = swapaxes(a=x, axis1=axis, axis2=-1)
 
     # Normalize frequency range
+    phi0 = 2.0 * np.pi * f0 / fs
+    phi1 = 2.0 * np.pi * f1 / fs
+    d_phi = (phi1 - phi0) / (M - 1)
     f0_norm = f0 / (fs / 2.)
     f1_norm = f1 / (fs / 2.)
 
     # Determine shape of signal
-    A = np.exp(1j * np.pi * f0_norm)
-    W = np.exp(-1j * np.pi * (f1_norm - f0_norm) / (M - 1))
-    y = chirpz(x=x, A=A, W=W, M=M)
-    # Return result
-    return swapaxes(a=y, axis1=axis, axis2=-1)
+    A = np.exp(1j * phi0)
+    W = np.exp(-1j * d_phi)
+    X = chirpz(x=x, A=A, W=W, M=M)
 
-def ifft(x, f0=0., f1=1., fs=1., M=None, axis=-1):
-    """zfft(x, f0, f1, fs, M) - Zoom FFT function to evaluate the 1DFT
+    return swapaxes(a=X, axis1=axis, axis2=-1)
+
+
+
+
+
+
+
+def ifft(X, t0=0.0, t1=1.0, dt=1.0, M=None, axis=-1):
+    """ifft(x, t0, f1, fs, M) - Zoom iFFT function to evaluate the 1DFT
     coefficients for the rows of an array in the frequency range [f0, f1]
     using N points.
 
     Keyword arguments:
-    x -- array to evaluate DFT (along last dimension of array)
-    f0 -- lower bound of frequency bandwidth
-    f1 -- upper bound of frequency bandwidth
-    fs -- sampling frequency
+    X -- array to evaluate iDFT (along last dimension of array)
+    t0 -- lower bound of time period
+    t1 -- upper bound of time period
+    dt -- sampling frequency
     M -- number of points used when evaluating the 1DFT (N <= signal length)
     axis -- axis along which the fft's are computed (defaults to last axis)
 
     Return values:
-    y -- DFT coefficients
+    x -- iDFT coefficients
 
     """
 
     # Handle default arguments
     if M == None:
-        M = x.shape[-1]
+        M = X.shape[-1]
 
     # Swap axes
-    x = swapaxes(a=x, axis1=axis, axis2=-1)
+    X = swapaxes(a=X, axis1=axis, axis2=-1)
 
-    # Normalize frequency range
-    f0_norm = f0 / (fs / 2.)
-    f1_norm = f1 / (fs / 2.)
+    N = X.shape[-1]
 
-    # Determine shape of signal
-    A = np.exp(1j * np.pi * f0_norm)
-    W = np.exp(-1j * np.pi * (f1_norm - f0_norm) / (M - 1))
-    y = chirpz(x=x, A=A, W=W, M=M)
-    # Return result
-    return swapaxes(a=y, axis1=axis, axis2=-1)
+    phi0 = t0 / dt * 2.0 * np.pi / N
+    phi1 = t1 / dt * 2.0 * np.pi / N
+    d_phi = (phi1 - phi0) / (M - 1)
+
+    A = np.exp(-1j * phi0)
+    W = np.exp(1j * d_phi)
+    x = chirpz(x=X, A=A, W=W, M=M) / N
+
+    return swapaxes(a=x, axis1=axis, axis2=-1)
+
+
 
 
 def fftfreq(f0, f1, M):
