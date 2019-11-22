@@ -4,6 +4,7 @@ from zfft import ifft as zifft
 from zfft import fftfreq as zfftfreq
 import numpy as np
 import unittest
+import interTK
 from scipy.fftpack import fft, ifft, fftfreq, fftshift
 
 
